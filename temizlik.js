@@ -63,6 +63,67 @@ function scavenge() {
     }
 
     // ... (sonraki kodun aynı kısmı)
+    // ... (önceki kodun tamamı)
+
+    function run() {
+        let btn = null;
+        for (const option in scavengeOptions) {
+            btn = findNextButton(option);
+
+            if (btn) {
+                fillInTroops(option, getAvailableUnits(), btn);
+                break;
+            }
+        }
+    }
+
+    function clear() {
+        let btn = null;
+        for (const option in scavengeOptions) {
+            btn = findNextButton(option);
+            if (btn) {
+                emptyTroops(option);
+                break;
+            }
+        }
+    }
+
+    function fillInTroops(option, availableUnits, button) {
+        scavengeOptions[option].forEach(units => {
+            const type = units.type;
+            let count = Math.round(units.count); // Yuvarlama hatasını düzelt
+            let requiredCapacity = availableUnits[type] < count ? availableUnits[type] : count;
+            $(`input.unitsInput[name='${type}']`).val(requiredCapacity).trigger("change");
+            $(button).focus();
+        });
+    }
+
+    function emptyTroops(option) {
+        scavengeOptions[option].forEach(units => {
+            const type = units.type;
+            $(`input.unitsInput[name='${type}']`).val("").trigger("change");
+        });
+    }
+
+    function findNextButton(option) {
+        startButtonName = document.getElementsByClassName("btn btn-default free_send_button")[0].innerHTML; // Doğru butonu bulmak için innerHTML kullanın
+        let btn = $(`.scavenge-option:contains("${option}")`).find('a:contains(' + startButtonName + ')');
+        if (btn.length > 0 && !$(btn).hasClass('btn-disabled')) return btn;
+    }
+
+    function getAvailableUnits() {
+        let availableUnits = {};
+
+        $('.units-entry-all').each((i, e) => {
+            const unitName = $(e).attr("data-unit");
+            const count = $(e).text().replace(/[()]/g, ''); // Parantezleri temizlemek için global regex kullanın
+            availableUnits[unitName] = parseInt(count);
+        });
+        return availableUnits;
+    }
+}
+
+scavenge();
 }
 
 scavenge();
